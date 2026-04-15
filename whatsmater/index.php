@@ -110,9 +110,8 @@ $sql = "SELECT p.*, u.username, u.full_name, u.profile_pic,
         ORDER BY p.created_at DESC
         LIMIT ? OFFSET ?";
 
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("iiiiiii", $userId, $userId, $userId, $userId, $userId, $postsPerPage, $offset);
 $postsPerPage = POSTS_PER_PAGE;
+$stmt = $conn->prepare($sql);
 $stmt->bind_param("iiiiiii", $userId, $userId, $userId, $userId, $userId, $postsPerPage, $offset);
 $stmt->execute();
 $posts = $stmt->get_result();
