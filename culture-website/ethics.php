@@ -1,118 +1,111 @@
 <?php
-$pageTitle = 'Ethics & Values - Cultural Heritage';
+/**
+ * Cultural Heritage Website - Ethics & Values Page
+ */
 require_once __DIR__ . '/config/app.php';
 
-$traditions = getEthicsContent('traditions');
-$moralTeachings = getEthicsContent('moral_teachings');
-$history = getEthicsContent('history');
+// Get ethics content by section
+$traditions = getEthicsContent($conn, 'traditions');
+$moralTeachings = getEthicsContent($conn, 'moral_teachings');
+$history = getEthicsContent($conn, 'history');
 
-require_once INCLUDES_PATH . 'header.php';
+include INCLUDES_PATH . 'header.php';
 ?>
 
-<!-- Page Banner -->
-<section class="page-banner">
-    <div class="page-banner-overlay">
-        <h1><i class="fas fa-scroll"></i> Ethics & Values</h1>
-        <p>Discover the traditions, moral teachings, and history that define our cultural identity.</p>
-    </div>
-</section>
-
-<!-- Ethics Navigation -->
-<section class="section ethics-nav-section">
-    <div class="container">
-        <div class="ethics-nav">
-            <a href="#traditions" class="ethics-nav-link active"><i class="fas fa-hands-praying"></i> Traditions</a>
-            <a href="#moral-teachings" class="ethics-nav-link"><i class="fas fa-book-open"></i> Moral Teachings</a>
-            <a href="#history" class="ethics-nav-link"><i class="fas fa-landmark"></i> History</a>
+    <!-- Page Banner -->
+    <section class="page-banner">
+        <div class="page-banner-overlay">
+            <h1>Ethics & Values</h1>
+            <p>Discover the traditions, moral teachings, and history that define our culture</p>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Traditions Section -->
-<section class="section ethics-section" id="traditions">
-    <div class="container">
-        <div class="section-header">
-            <h2><i class="fas fa-hands-praying"></i> Our Traditions</h2>
-            <div class="section-divider"></div>
-            <p>The sacred customs and practices that have been preserved through generations.</p>
-        </div>
-        <?php if (!empty($traditions)): ?>
-        <div class="ethics-grid">
-            <?php foreach ($traditions as $item): ?>
-            <div class="ethics-card">
-                <div class="ethics-card-icon">
-                    <i class="fas fa-feather-pointed"></i>
+    <!-- Ethics Content -->
+    <section class="section ethics-section">
+        <div class="container">
+
+            <!-- Traditions Section -->
+            <div class="ethics-category">
+                <div class="ethics-category-header">
+                    <h2><i class="fas fa-hands-praying"></i> Traditions</h2>
+                    <p>Time-honored customs and practices that connect us to our ancestors</p>
                 </div>
-                <h3><?php echo htmlspecialchars($item['title']); ?></h3>
-                <p><?php echo htmlspecialchars($item['body']); ?></p>
-            </div>
-            <?php endforeach; ?>
-        </div>
-        <?php else: ?>
-        <div class="empty-state">
-            <i class="fas fa-scroll"></i>
-            <h3>Content coming soon</h3>
-        </div>
-        <?php endif; ?>
-    </div>
-</section>
-
-<!-- Moral Teachings Section -->
-<section class="section ethics-section" id="moral-teachings">
-    <div class="container">
-        <div class="section-header">
-            <h2><i class="fas fa-book-open"></i> Moral Teachings</h2>
-            <div class="section-divider"></div>
-            <p>The principles and values that guide our daily lives and interactions.</p>
-        </div>
-        <?php if (!empty($moralTeachings)): ?>
-        <div class="ethics-grid">
-            <?php foreach ($moralTeachings as $item): ?>
-            <div class="ethics-card">
-                <div class="ethics-card-icon">
-                    <i class="fas fa-balance-scale"></i>
-                </div>
-                <h3><?php echo htmlspecialchars($item['title']); ?></h3>
-                <p><?php echo htmlspecialchars($item['body']); ?></p>
-            </div>
-            <?php endforeach; ?>
-        </div>
-        <?php else: ?>
-        <div class="empty-state">
-            <i class="fas fa-book"></i>
-            <h3>Content coming soon</h3>
-        </div>
-        <?php endif; ?>
-    </div>
-</section>
-
-<!-- History Section -->
-<section class="section ethics-section" id="history">
-    <div class="container">
-        <div class="section-header">
-            <h2><i class="fas fa-landmark"></i> Our History</h2>
-            <div class="section-divider"></div>
-            <p>The journey of our people from ancient times to the present day.</p>
-        </div>
-        <?php if (!empty($history)): ?>
-        <div class="timeline">
-            <?php foreach ($history as $index => $item): ?>
-            <div class="timeline-item <?php echo $index % 2 === 0 ? 'timeline-left' : 'timeline-right'; ?>">
-                <div class="timeline-dot"></div>
-                <div class="timeline-content">
-                    <h3><?php echo htmlspecialchars($item['title']); ?></h3>
-                    <p><?php echo htmlspecialchars($item['body']); ?></p>
+                <div class="accordion" id="traditionsAccordion">
+                    <?php if (!empty($traditions)): ?>
+                        <?php foreach ($traditions as $index => $item): ?>
+                            <div class="accordion-item">
+                                <button class="accordion-header <?php echo $index === 0 ? 'active' : ''; ?>" aria-expanded="<?php echo $index === 0 ? 'true' : 'false'; ?>">
+                                    <span><?php echo htmlspecialchars($item['title']); ?></span>
+                                    <i class="fas fa-chevron-down accordion-icon"></i>
+                                </button>
+                                <div class="accordion-body" <?php echo $index === 0 ? 'style="max-height: 500px;"' : ''; ?>>
+                                    <div class="accordion-content">
+                                        <p><?php echo nl2br(htmlspecialchars($item['body'])); ?></p>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="no-content">No traditions content available.</p>
+                    <?php endif; ?>
                 </div>
             </div>
-            <?php endforeach; ?>
-        </div>
-        <?php else: ?>
-        <div class="empty-state">
-            <i class="fas fa-history"></i>
-            <h3>Content coming soon</h3>
-        </div>
-        <?php endif; ?>
-    </div>
-</section>
 
-<?php require_once INCLUDES_PATH . 'footer.php'; ?>
+            <!-- Moral Teachings Section -->
+            <div class="ethics-category">
+                <div class="ethics-category-header">
+                    <h2><i class="fas fa-balance-scale"></i> Moral Teachings</h2>
+                    <p>Ethical principles passed down through generations</p>
+                </div>
+                <div class="accordion" id="moralAccordion">
+                    <?php if (!empty($moralTeachings)): ?>
+                        <?php foreach ($moralTeachings as $index => $item): ?>
+                            <div class="accordion-item">
+                                <button class="accordion-header <?php echo $index === 0 ? 'active' : ''; ?>" aria-expanded="<?php echo $index === 0 ? 'true' : 'false'; ?>">
+                                    <span><?php echo htmlspecialchars($item['title']); ?></span>
+                                    <i class="fas fa-chevron-down accordion-icon"></i>
+                                </button>
+                                <div class="accordion-body" <?php echo $index === 0 ? 'style="max-height: 500px;"' : ''; ?>>
+                                    <div class="accordion-content">
+                                        <p><?php echo nl2br(htmlspecialchars($item['body'])); ?></p>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="no-content">No moral teachings content available.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div class="ethics-category">
+                <div class="ethics-category-header">
+                    <h2><i class="fas fa-scroll"></i> History</h2>
+                    <p>The origins and journey of our cultural heritage</p>
+                </div>
+                <div class="accordion" id="historyAccordion">
+                    <?php if (!empty($history)): ?>
+                        <?php foreach ($history as $index => $item): ?>
+                            <div class="accordion-item">
+                                <button class="accordion-header <?php echo $index === 0 ? 'active' : ''; ?>" aria-expanded="<?php echo $index === 0 ? 'true' : 'false'; ?>">
+                                    <span><?php echo htmlspecialchars($item['title']); ?></span>
+                                    <i class="fas fa-chevron-down accordion-icon"></i>
+                                </button>
+                                <div class="accordion-body" <?php echo $index === 0 ? 'style="max-height: 500px;"' : ''; ?>>
+                                    <div class="accordion-content">
+                                        <p><?php echo nl2br(htmlspecialchars($item['body'])); ?></p>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="no-content">No history content available.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+<?php include INCLUDES_PATH . 'footer.php'; ?>

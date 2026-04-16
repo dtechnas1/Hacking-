@@ -3,24 +3,27 @@
  * Cultural Heritage Website - Application Configuration
  */
 
+// Application settings
 define('APP_NAME', 'Cultural Heritage');
 define('APP_URL', 'http://localhost/culture-website');
-define('APP_VERSION', '1.0.0');
 
+// Directory paths
 define('ROOT_PATH', dirname(__DIR__) . '/');
 define('INCLUDES_PATH', ROOT_PATH . 'includes/');
 define('ASSETS_PATH', ROOT_PATH . 'assets/');
 define('UPLOADS_PATH', ROOT_PATH . 'uploads/');
 
-define('MAX_FILE_SIZE', 5 * 1024 * 1024);
-define('ALLOWED_IMAGE_TYPES', ['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
-define('ITEMS_PER_PAGE', 12);
-
+// Start session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Include database
 require_once __DIR__ . '/database.php';
+
+/**
+ * Helper Functions
+ */
 
 // Sanitize input
 function sanitize($data) {
@@ -34,86 +37,120 @@ function redirect($url) {
     exit();
 }
 
-// Check if admin is logged in
-function isAdminLoggedIn() {
-    return isset($_SESSION['admin_id']);
-}
-
-// Get gallery items
-function getGalleryItems($category = null, $limit = null, $featuredOnly = false) {
-    global $conn;
-    $sql = "SELECT g.*, c.name as category_name FROM gallery_items g LEFT JOIN categories c ON g.category_id = c.id WHERE 1=1";
+/**
+ * Get gallery items from the database.
+ *
+ * @param mysqli $conn     Database connection
+ * @param string|null $category  Filter by category_label (events, traditional_dress, activities)
+ * @param int|null $limit  Maximum number of results
+ * @return array
+ */
+function getGalleryItems($conn, $category = null, $limit = null) {
+    $sql = "SELECT g.*, c.name AS category_name FROM gallery_items g
+            LEFT JOIN categories c ON g.category_id = c.id";
     $params = [];
-    $types = "";
+    $types = '';
 
     if ($category) {
-        $sql .= " AND g.category_label = ?";
+        $sql .= " WHERE g.category_label = ?";
         $params[] = $category;
-        $types .= "s";
+        $types .= 's';
     }
-    if ($featuredOnly) {
-        $sql .= " AND g.is_featured = 1";
-    }
+
     $sql .= " ORDER BY g.created_at DESC";
+
     if ($limit) {
         $sql .= " LIMIT ?";
         $params[] = $limit;
-        $types .= "i";
+        $types .= 'i';
     }
 
     $stmt = $conn->prepare($sql);
-    if (!empty($params)) {
+    if ($types) {
         $stmt->bind_param($types, ...$params);
     }
     $stmt->execute();
-    return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $result = $stmt->get_result();
+
+    $items = [];
+    while ($row = $result->fetch_assoc()) {
+        $items[] = $row;
+    }
+    return $items;
 }
 
-// Get videos
-function getVideos($category = null, $limit = null) {
-    global $conn;
-    $sql = "SELECT v.*, c.name as category_name FROM videos v LEFT JOIN categories c ON v.category_id = c.id WHERE 1=1";
+/**
+ * Get videos from the database.
+ *
+ * @param mysqli $conn     Database connection
+ * @param string|null $category  Filter by category_label (dance, interviews, programs)
+ * @param int|null $limit  Maximum number of results
+ * @return array
+ */
+function getVideos($conn, $category = null, $limit = null) {
+    $sql = "SELECT v.*, c.name AS category_name FROM videos v
+            LEFT JOIN categories c ON v.category_id = c.id";
     $params = [];
-    $types = "";
+    $types = '';
 
     if ($category) {
-        $sql .= " AND v.category_label = ?";
+        $sql .= " WHERE v.category_label = ?";
         $params[] = $category;
-        $types .= "s";
+        $types .= 's';
     }
+
     $sql .= " ORDER BY v.created_at DESC";
+
     if ($limit) {
         $sql .= " LIMIT ?";
         $params[] = $limit;
-        $types .= "i";
+        $types .= 'i';
     }
 
     $stmt = $conn->prepare($sql);
-    if (!empty($params)) {
+    if ($types) {
         $stmt->bind_param($types, ...$params);
     }
     $stmt->execute();
-    return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $result = $stmt->get_result();
+
+    $items = [];
+    while ($row = $result->fetch_assoc()) {
+        $items[] = $row;
+    }
+    return $items;
 }
 
-// Get ethics content
-function getEthicsContent($section = null) {
-    global $conn;
-    $sql = "SELECT * FROM ethics_content WHERE 1=1";
+/**
+ * Get ethics content from the database.
+ *
+ * @param mysqli $conn        Database connection
+ * @param string|null $section  Filter by section (traditions, moral_teachings, history)
+ * @return array
+ */
+function getEthicsContent($conn, $section = null) {
+    $sql = "SELECT * FROM ethics_content";
     $params = [];
-    $types = "";
+    $types = '';
 
     if ($section) {
-        $sql .= " AND section = ?";
+        $sql .= " WHERE section = ?";
         $params[] = $section;
-        $types .= "s";
+        $types .= 's';
     }
+
     $sql .= " ORDER BY sort_order ASC";
 
     $stmt = $conn->prepare($sql);
-    if (!empty($params)) {
+    if ($types) {
         $stmt->bind_param($types, ...$params);
     }
     $stmt->execute();
-    return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $result = $stmt->get_result();
+
+    $items = [];
+    while ($row = $result->fetch_assoc()) {
+        $items[] = $row;
+    }
+    return $items;
 }
