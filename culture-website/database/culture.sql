@@ -1,109 +1,119 @@
+-- Cultural Heritage Website Database Schema
+-- Run this SQL to set up the database
+
 CREATE DATABASE IF NOT EXISTS culture_website;
 USE culture_website;
 
-CREATE TABLE categories (
+-- Categories table (shared across gallery, video, ethics)
+CREATE TABLE IF NOT EXISTS categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    type ENUM('gallery','video','ethics') NOT NULL,
+    type ENUM('gallery', 'video', 'ethics') NOT NULL,
+    description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE gallery_items (
+-- Gallery items table
+CREATE TABLE IF NOT EXISTS gallery_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    category_id INT,
+    category_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT,
-    image VARCHAR(255) NOT NULL,
-    category_label ENUM('events','traditional_dress','activities') DEFAULT 'events',
+    image_path VARCHAR(500) DEFAULT NULL,
+    category_label ENUM('events', 'traditional_dress', 'activities') NOT NULL,
     is_featured TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
-);
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE videos (
+-- Videos table
+CREATE TABLE IF NOT EXISTS videos (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    category_id INT,
+    category_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT,
     video_url VARCHAR(500) NOT NULL,
-    thumbnail VARCHAR(255),
-    category_label ENUM('dance','interviews','programs') DEFAULT 'dance',
+    thumbnail VARCHAR(500) DEFAULT NULL,
+    category_label ENUM('dance', 'interviews', 'programs') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
-);
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE ethics_content (
+-- Ethics content table
+CREATE TABLE IF NOT EXISTS ethics_content (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     body TEXT NOT NULL,
-    section ENUM('traditions','moral_teachings','history') NOT NULL,
+    section ENUM('traditions', 'moral_teachings', 'history') NOT NULL,
     sort_order INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE contact_messages (
+-- Contact messages table
+CREATE TABLE IF NOT EXISTS contact_messages (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) NOT NULL,
-    subject VARCHAR(255),
+    email VARCHAR(255) NOT NULL,
+    subject VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,
     is_read TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE admins (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- =====================
+-- Seed Data
+-- =====================
 
--- Seed categories
-INSERT INTO categories (name, type) VALUES
-('Cultural Events', 'gallery'),
-('Traditional Dress', 'gallery'),
-('Activities', 'gallery'),
-('Cultural Dance', 'video'),
-('Interviews', 'video'),
-('Programs', 'video'),
-('Traditions', 'ethics'),
-('Moral Teachings', 'ethics'),
-('History', 'ethics');
+-- Categories: 3 gallery, 3 video, 3 ethics
+INSERT INTO categories (name, type, description) VALUES
+('Cultural Events', 'gallery', 'Photos from cultural events and celebrations'),
+('Traditional Dress', 'gallery', 'Traditional clothing and attire from our heritage'),
+('Activities', 'gallery', 'Cultural activities and community gatherings'),
+('Cultural Dance', 'video', 'Traditional dance performances and tutorials'),
+('Interviews', 'video', 'Interviews with elders and cultural leaders'),
+('Programs', 'video', 'Cultural programs and educational content'),
+('Traditions', 'ethics', 'Our time-honored traditions and customs'),
+('Moral Teachings', 'ethics', 'Ethical principles passed down through generations'),
+('History', 'ethics', 'The history and origins of our cultural heritage');
 
--- Seed gallery items (use placeholder image paths)
-INSERT INTO gallery_items (category_id, title, description, image, category_label, is_featured) VALUES
-(1, 'Annual Cultural Festival', 'Our community comes together every year to celebrate our rich heritage through music, dance, and food.', 'event1.jpg', 'events', 1),
-(1, 'Harvest Celebration', 'The harvest festival marks the end of the farming season with traditional songs and feasting.', 'event2.jpg', 'events', 1),
-(1, 'New Year Ceremony', 'Traditional new year celebrations featuring elders blessing the community.', 'event3.jpg', 'events', 0),
-(2, 'Ceremonial Attire', 'The elaborate ceremonial dress worn during important cultural occasions.', 'dress1.jpg', 'traditional_dress', 1),
-(2, 'Wedding Garments', 'Traditional wedding attire passed down through generations.', 'dress2.jpg', 'traditional_dress', 1),
-(2, 'Festival Costumes', 'Colorful costumes worn during seasonal festivals.', 'dress3.jpg', 'traditional_dress', 0),
-(3, 'Traditional Pottery', 'The art of pottery making has been practiced for centuries in our community.', 'activity1.jpg', 'activities', 1),
-(3, 'Weaving Workshop', 'Community members gather to practice traditional weaving techniques.', 'activity2.jpg', 'activities', 1),
-(3, 'Storytelling Circle', 'Elders share ancient stories with the younger generation around the fire.', 'activity3.jpg', 'activities', 0);
+-- Gallery items seed data
+INSERT INTO gallery_items (category_id, title, description, image_path, category_label, is_featured) VALUES
+(1, 'Annual Heritage Festival', 'A vibrant celebration of our cultural roots with music, food, and traditional performances.', 'uploads/gallery/heritage-festival.jpg', 'events', 1),
+(1, 'Community Gathering 2024', 'Elders and youth coming together to share stories and celebrate our shared heritage.', 'uploads/gallery/community-gathering.jpg', 'events', 1),
+(1, 'Cultural Night Ceremony', 'An evening dedicated to traditional ceremonies and rituals passed down through generations.', 'uploads/gallery/cultural-night.jpg', 'events', 0),
+(2, 'Traditional Wedding Attire', 'Exquisite hand-woven garments worn during traditional wedding ceremonies.', 'uploads/gallery/wedding-attire.jpg', 'traditional_dress', 1),
+(2, 'Ceremonial Robes', 'Elegant robes adorned with symbolic patterns representing our ancestral heritage.', 'uploads/gallery/ceremonial-robes.jpg', 'traditional_dress', 1),
+(2, 'Festival Costumes', 'Colorful costumes worn during annual cultural festivals and parades.', 'uploads/gallery/festival-costumes.jpg', 'traditional_dress', 0),
+(3, 'Traditional Cooking Workshop', 'Hands-on workshop teaching the art of preparing traditional dishes and recipes.', 'uploads/gallery/cooking-workshop.jpg', 'activities', 1),
+(3, 'Storytelling Circle', 'Elders sharing ancient tales and folklore with the younger generation around a fire.', 'uploads/gallery/storytelling.jpg', 'activities', 1),
+(3, 'Craft Making Session', 'Community members creating traditional crafts using techniques passed down for centuries.', 'uploads/gallery/craft-making.jpg', 'activities', 0);
 
--- Seed videos
+-- Videos seed data
 INSERT INTO videos (category_id, title, description, video_url, thumbnail, category_label) VALUES
-(4, 'Traditional Welcome Dance', 'A beautiful performance of our traditional welcome dance performed at cultural gatherings.', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'dance1.jpg', 'dance'),
-(4, 'Harvest Dance Ritual', 'The sacred harvest dance performed to give thanks for a bountiful season.', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'dance2.jpg', 'dance'),
-(4, 'Youth Dance Competition', 'Young performers showcase their skills in traditional dance forms.', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'dance3.jpg', 'dance'),
-(5, 'Elder Interview: Cultural Preservation', 'An in-depth conversation with community elders about preserving our traditions.', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'interview1.jpg', 'interviews'),
-(5, 'Youth Voices: Our Heritage', 'Young community members share what their cultural heritage means to them.', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'interview2.jpg', 'interviews'),
-(6, 'Cultural Awareness Program', 'A community program designed to educate and promote cultural awareness.', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'program1.jpg', 'programs'),
-(6, 'Heritage Month Highlights', 'Highlights from our annual heritage month celebrations and activities.', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'program2.jpg', 'programs');
+(4, 'Traditional Harvest Dance', 'A beautiful performance of the harvest dance, performed during the autumn festival.', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'uploads/videos/harvest-dance-thumb.jpg', 'dance'),
+(4, 'Warriors Welcome Dance', 'The ceremonial dance performed to welcome returning warriors and honored guests.', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'uploads/videos/warriors-dance-thumb.jpg', 'dance'),
+(4, 'Moonlight Celebration Dance', 'A graceful dance performed under the moonlight during the new year celebration.', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'uploads/videos/moonlight-dance-thumb.jpg', 'dance'),
+(5, 'Elder Wisdom: Chief Amara', 'An insightful interview with Chief Amara about preserving cultural identity in modern times.', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'uploads/videos/chief-amara-thumb.jpg', 'interviews'),
+(5, 'Youth Voices: Cultural Identity', 'Young community members discuss what their cultural heritage means to them today.', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'uploads/videos/youth-voices-thumb.jpg', 'interviews'),
+(5, 'Master Weaver Interview', 'A conversation with a master weaver about the symbolism in traditional textile patterns.', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'uploads/videos/weaver-interview-thumb.jpg', 'interviews'),
+(6, 'Heritage Language Program', 'An educational program teaching the native language to children and adults.', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'uploads/videos/language-program-thumb.jpg', 'programs'),
+(6, 'Cultural Preservation Workshop', 'A workshop on documenting and preserving intangible cultural heritage for future generations.', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'uploads/videos/preservation-workshop-thumb.jpg', 'programs'),
+(6, 'Traditional Music Masterclass', 'Learn about traditional instruments and musical scales in this educational masterclass.', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'uploads/videos/music-masterclass-thumb.jpg', 'programs');
 
--- Seed ethics content
+-- Ethics content seed data
 INSERT INTO ethics_content (title, body, section, sort_order) VALUES
-('Respect for Elders', 'In our culture, elders are the pillars of wisdom. Respecting and caring for our elders is not just a tradition but a sacred duty. Their guidance shapes the moral compass of our community, and their stories carry the weight of generations.', 'traditions', 1),
-('Community Unity', 'The strength of our people lies in unity. We believe that a community that works together, celebrates together, and mourns together is one that endures through all challenges. Every member has a role and every voice matters.', 'traditions', 2),
-('Sacred Ceremonies', 'Our ceremonies connect us to our ancestors and the spiritual world. Each ritual has been carefully preserved and passed down, carrying deep meaning and purpose that binds our community across time.', 'traditions', 3),
-('Honesty and Integrity', 'Truth is the foundation of trust. Our ancestors taught that a person''s word is their bond. Honesty in all dealings — whether in trade, relationships, or governance — is a core value that defines our character.', 'moral_teachings', 1),
-('Generosity and Sharing', 'We believe that abundance is meant to be shared. Generosity is not measured by wealth but by the willingness to give. Sharing food, knowledge, and time strengthens the bonds that hold our community together.', 'moral_teachings', 2),
-('Stewardship of Nature', 'The land, rivers, and forests are not ours to own but to protect. Our ancestors lived in harmony with nature, taking only what was needed and giving back to the earth. This responsibility continues with each generation.', 'moral_teachings', 3),
-('Origins of Our People', 'Our history stretches back thousands of years to the fertile valleys where our ancestors first settled. Through oral tradition and archaeological evidence, we trace our lineage to the earliest communities of this region.', 'history', 1),
-('The Great Migration', 'Centuries ago, our people undertook a great migration driven by changing climates and the search for new opportunities. This journey shaped our identity and forged the resilience that defines us today.', 'history', 2),
-('Modern Cultural Revival', 'In recent decades, there has been a powerful movement to revive and preserve our cultural practices. Community leaders, educators, and youth have come together to ensure our heritage thrives in the modern world.', 'history', 3);
+('Respect for Elders', 'In our culture, elders are regarded as the pillars of wisdom and guardians of our collective memory. Respecting elders is not merely a social expectation but a deeply held value that shapes our community. Young people are taught to seek guidance from elders before making important decisions, and their counsel is valued in all matters of community governance.', 'traditions', 1),
+('Communal Living', 'Our tradition of communal living emphasizes that no individual exists in isolation. The community shares in both joys and sorrows, and resources are distributed according to need. This tradition manifests in communal farming, shared childcare responsibilities, and collective decision-making processes that ensure every voice is heard.', 'traditions', 2),
+('Seasonal Ceremonies', 'Throughout the year, our community observes ceremonies tied to the natural seasons. The planting ceremony in spring asks for blessings on the crops, the harvest festival in autumn gives thanks for abundance, and the winter gathering strengthens community bonds during the cold months. Each ceremony includes specific rituals, songs, and dances passed down through generations.', 'traditions', 3),
+('Honesty and Integrity', 'Our moral framework places honesty at its foundation. A person''s word is considered a sacred bond, and breaking a promise brings not only personal shame but also dishonors the family. Children learn from an early age that truthfulness, even when difficult, is the mark of a person of character.', 'moral_teachings', 1),
+('Generosity and Sharing', 'The teaching of generosity runs deep in our cultural values. It is believed that wealth and resources are gifts to be shared, not hoarded. Those who have more are expected to give freely to those in need, and this cycle of giving creates a safety net that supports the entire community.', 'moral_teachings', 2),
+('Harmony with Nature', 'Our ancestors taught us to live in harmony with the natural world. We believe that humans are not masters of nature but participants in a greater ecosystem. This teaching guides our farming practices, our use of natural resources, and our spiritual connection to the land that sustains us.', 'moral_teachings', 3),
+('Origins of Our People', 'Our people trace their origins to the fertile valleys of the great river, where our ancestors first settled thousands of years ago. Archaeological evidence and oral histories tell of a migration from the eastern highlands, led by the legendary founder Mwamba, who was guided by a vision to find a land of abundance and peace.', 'history', 1),
+('The Great Kingdom Period', 'During the 15th to 18th centuries, our ancestors established a prosperous kingdom known for its sophisticated governance, advanced agriculture, and rich artistic traditions. The kingdom maintained diplomatic relations with neighboring peoples and was renowned for its system of justice and equitable resource distribution.', 'history', 2),
+('Modern Cultural Revival', 'In the 20th and 21st centuries, a cultural revival movement has worked tirelessly to preserve and promote our heritage. Elders and scholars have documented oral histories, traditional practices, and indigenous knowledge. Cultural centers, festivals, and educational programs have been established to ensure that future generations remain connected to their roots.', 'history', 3);
 
--- Seed admin (password: admin123 — hashed with PHP password_hash)
-INSERT INTO admins (username, password) VALUES
-('admin', '$2y$10$Sh7C.9X1NPzUDUUPtYLCoepqmy9ue.cfaySKJbzQdFoDomcZYx7Oa');
+-- Contact messages seed data
+INSERT INTO contact_messages (name, email, subject, message, is_read) VALUES
+('John Doe', 'john@example.com', 'Cultural Event Inquiry', 'Hello, I would like to know more about the upcoming cultural events and how I can participate. Please send me the schedule and any registration details. Thank you!', 0),
+('Sarah Smith', 'sarah@example.com', 'Research Collaboration', 'I am a cultural anthropologist at the university and would love to collaborate on documenting traditional practices. Could we arrange a meeting to discuss possibilities?', 0),
+('Michael Johnson', 'michael@example.com', 'Volunteer Opportunity', 'I am interested in volunteering at the next heritage festival. I have experience in event coordination and would love to help preserve cultural traditions. Please let me know how I can get involved.', 1);
