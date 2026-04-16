@@ -106,4 +106,4 @@ INSERT INTO ethics_content (title, body, section, sort_order) VALUES
 
 -- Seed admin (password: admin123 — hashed with PHP password_hash)
 INSERT INTO admins (username, password) VALUES
-('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+('admin', '$2y$10$Sh7C.9X1NPzUDUUPtYLCoepqmy9ue.cfaySKJbzQdFoDomcZYx7Oa');
